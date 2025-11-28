@@ -42,9 +42,9 @@ loki.source.docker "docker_logs" {
   }
 
   labels = {
-    job = "docker-containers"
-    env = "local"
-    os  = "macos"
+    job = "docker-containers",
+    env = "local",
+    os  = "macos",
   }
 
   tail_from_end = false
