@@ -23,3 +23,7 @@ loki.write "grafana_loki" {
     url = "http://localhost:3100/loki/api/v1/push"
   }
 }
+
+livedebugging {
+  enabled = true
+}
