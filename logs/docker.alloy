@@ -13,8 +13,7 @@ loki.source.docker "docker_logs" {
     os  = "macos",
   }
 
-  tail_from_end = false
-  forward_to    = [loki.process.enrich.receiver]
+  forward_to = [loki.process.enrich.receiver]
 }
 
 loki.process "enrich" {
