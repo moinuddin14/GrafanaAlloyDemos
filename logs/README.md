@@ -31,7 +31,33 @@ This repository contains various exampled and demos of Grafana Alloy
 
 # Workshop Steps for Grafana Alloy Docker Container Logs
 
+1. Create config directory (equivalent to /opt/alloy on how you usually create on linux)
 
+    ``` shell
+        mkdir ~/alloy-configs
+        cd ~/alloy-configs
+    ```
+
+2. Copy/Move your files here
+
+    ```shell
+        cp ~/docker.alloy .
+        cp ~/config.alloy .
+    ```
+
+3. Run will scans all the *.alloy files automatically
+
+    `alloy run --config.dir=~/alloy-configs`
+
+4. Verify it's properly loaded
+
+    ```shell
+        # Check what Alloy loaded
+        alloy run --config.dir=~/alloy-configs --dry-run
+
+        # Service logs
+        brew services log grafana/tap/alloy
+    ```
 
 # Workshop Steps for Grafana Alloy Kubernetes Container Logs
 
