@@ -7,39 +7,44 @@ loki.source.docker "docker_logs" {
   host    = "unix:///var/run/docker.sock"
   targets = discovery.docker.containers.targets
 
-  relabel_rules = [
-    {
-      source_labels = ["__meta_docker_container_name"],
-      target_label  = "container",
-      regex         = "/(.*)",
-    },
-    {
-      source_labels = ["__meta_docker_container_id"],
-      target_label  = "container_id",
-    },
-    {
-      source_labels = ["__meta_docker_container_image"],
-      target_label  = "image",
-    },
-    {
-      source_labels = ["__meta_docker_container_label_com_docker_compose_service"],
-      target_label  = "compose_service",
-    },
-    {
-      source_labels = ["__meta_docker_container_label_com_docker_compose_project"],
-      target_label  = "compose_project",
-    },
-    {
-      source_labels = ["__host__"],
-      target_label  = "host",
-      replacement   = "mac-local",
-    },
-  ]
+  relabel_rules {
+    rule {
+      source_labels = ["__meta_docker_container_name"]
+      target_label  = "container"
+      regex         = "/(.*)"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_container_id"]
+      target_label  = "container_id"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_container_image"]
+      target_label  = "image"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+      target_label  = "compose_service"
+    }
+
+    rule {
+      source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+      target_label  = "compose_project"
+    }
+
+    rule {
+      source_labels = ["__host__"]
+      target_label  = "host"
+      replacement   = "mac-local"
+    }
+  }
 
   labels = {
-    job = "docker-containers",
-    env = "local",
-    os  = "macos",
+    job = "docker-containers"
+    env = "local"
+    os  = "macos"
   }
 
   tail_from_end = false
@@ -69,10 +74,11 @@ loki.process "enrich" {
   }
 
   stage.metrics {
-    values = {
-      byte_size = "",
+    metric {
+      name   = "byte_size"
+      action = "add"
+      value  = 1
     }
-    action = "add"
   }
 
   forward_to = [loki.write.loki.receiver]

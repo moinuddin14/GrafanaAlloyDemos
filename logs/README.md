@@ -40,3 +40,7 @@ This repository contains various exampled and demos of Grafana Alloy
 
 # Workshop Steps for Grafana Alloy Kubernetes Container Logs
 
+# Troubleshooting or Debugging the Alloy Configuration files
+
+`cat /opt/homebrew/var/log/alloy.log`
+`cat /opt/homebrew/var/log/alloy.err.log`
