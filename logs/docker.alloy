@@ -1,88 +1,87 @@
 discovery.docker "containers" {
-  host = "unix:///var/run/docker.sock"
+  host             = "unix:///var/run/docker.sock"
   refresh_interval = "30s"
 }
 
-discovery.relabel "docker_labels" {
+loki.source.docker "docker_logs" {
+  host    = "unix:///var/run/docker.sock"
   targets = discovery.docker.containers.targets
 
-  rule {
-    source_labels = ["__meta_docker_container_name"]
-    target_label  = "container"
-    regex         = "/(.*)"
+  // Relabel Docker metadata into Loki stream labels
+  relabel_rules = [
+    {
+      source_labels = ["__meta_docker_container_name"]
+      target_label  = "container"
+      regex         = "/(.*)"
+    },
+    {
+      source_labels = ["__meta_docker_container_id"]
+      target_label  = "container_id"
+    },
+    {
+      source_labels = ["__meta_docker_container_image"]
+      target_label  = "image"
+    },
+    {
+      source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+      target_label  = "compose_service"
+    },
+    {
+      source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+      target_label  = "compose_project"
+    },
+    {
+      source_labels = ["__host__"]
+      target_label  = "host"
+      replacement   = "mac-local"
+    },
+  ]
+
+  // Static labels for all streams from this source
+  labels = {
+    job = "docker-containers"
+    env = "local"
+    os  = "macos"
   }
 
-  rule {
-    source_labels = ["__meta_docker_container_id"]
-    target_label  = "container_id"
-  }
-
-  rule {
-    source_labels = ["__meta_docker_container_image"]
-    target_label  = "image"
-  }
-
-  rule {
-    source_labels = ["__host__"]
-    target_label  = "host"
-    replacement   = "mac-local"
-  }
-
-  rule {
-    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
-    target_label  = "compose_service"
-  }
-
-  rule {
-    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
-    target_label  = "compose_project"
-  }
-}
-
-loki.source.docker "docker_logs" {
-  host          = "unix:///var/run/docker.sock"
-  targets       = discovery.relabel.docker_labels.output
-  labels        = { job = "docker-containers", env = "local", os = "macos" }
-  forward_to    = [loki.process.enrich.receiver]
-  
   tail_from_end = true
+  forward_to    = [loki.process.enrich.receiver]
 }
 
 loki.process "enrich" {
   stage.docker {}
+
   stage.json {
     expressions = {
-      "level"  = "level",
-      "msg"    = "msg",
-      "ts"     = "ts",
+      "level" = "level"
+      "msg"   = "msg"
+      "ts"    = "ts"
     }
   }
+
   stage.labels {
     values = {
-      level = "",
+      level = ""
     }
   }
+
   stage.timestamp {
     source = "ts"
     format = "2006-01-02T15:04:05Z07:00"
   }
+
   stage.metrics {
     values = {
-      byte_size = "",
+      byte_size = ""
     }
     action = "add"
   }
-  
+
   forward_to = [loki.write.loki.receiver]
 }
 
 loki.write "loki" {
   endpoint {
-    url     = "http://localhost:3100/loki/api/v1/push"
-    # Replace with your Loki URL, e.g., Grafana Cloud or external Loki
-    # basic_auth {
-    #   username = "your-username"
-    #   password = "your-password"
-    # }
+    url = "http://localhost:3100/loki/api/v1/push"
   }
 }

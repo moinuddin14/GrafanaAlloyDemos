@@ -7,6 +7,7 @@ This repository contains various exampled and demos of Grafana Alloy
 
     - Access Grafana at http://localhost:3000 (admin/admin), add Loki datasource at http://loki:3100 this is to add in the Grafana Data Source
     - To verify `loki` is working `curl http://localhost:3100/ready` and/or `curl http://localhost:3100/metrics | head -20` or even without curl on the browser
+    - User Interface of `alloy` is available at `http://localhost:12345/`, you can change this default port if required
 
 2. Configure Alloy for macOS Service Logs in config.alloy file
 
@@ -31,33 +32,11 @@ This repository contains various exampled and demos of Grafana Alloy
 
 # Workshop Steps for Grafana Alloy Docker Container Logs
 
-1. Create config directory (equivalent to /opt/alloy on how you usually create on linux)
+1. Copy your config file to the Alloy default config location `sudo cp docker.alloy $(brew --prefix)/etc/alloy/config.alloy`
 
-    ``` shell
-        mkdir ~/alloy-configs
-        cd ~/alloy-configs
-    ```
+    - This will override the existing config.alloy file as at any given time alloy can run only one alloy configuration file
 
-2. Copy/Move your files here
-
-    ```shell
-        cp ~/docker.alloy .
-        cp ~/config.alloy .
-    ```
-
-3. Run will scans all the *.alloy files automatically
-
-    `alloy run --config.dir=~/alloy-configs`
-
-4. Verify it's properly loaded
-
-    ```shell
-        # Check what Alloy loaded
-        alloy run --config.dir=~/alloy-configs --dry-run
-
-        # Service logs
-        brew services log grafana/tap/alloy
-    ```
+2. Reload Alloy configuration without restart `curl -X POST http://localhost:12345/-/reload` or if you wish to restart the alloy service `brew services restart grafana/grafana/alloy`
 
 # Workshop Steps for Grafana Alloy Kubernetes Container Logs
 
