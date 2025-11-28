@@ -7,7 +7,6 @@ loki.source.docker "docker_logs" {
   host    = "unix:///var/run/docker.sock"
   targets = discovery.docker.containers.targets
 
-  // Relabel Docker metadata into Loki stream labels
   relabel_rules = [
     {
       source_labels = ["__meta_docker_container_name"]
@@ -37,7 +36,6 @@ loki.source.docker "docker_logs" {
     },
   ]
 
-  // Static labels for all streams from this source
   labels = {
     job = "docker-containers"
     env = "local"
