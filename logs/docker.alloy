@@ -9,40 +9,40 @@ loki.source.docker "docker_logs" {
 
   relabel_rules = [
     {
-      source_labels = ["__meta_docker_container_name"]
-      target_label  = "container"
-      regex         = "/(.*)"
+      source_labels = ["__meta_docker_container_name"],
+      target_label  = "container",
+      regex         = "/(.*)",
     },
     {
-      source_labels = ["__meta_docker_container_id"]
-      target_label  = "container_id"
+      source_labels = ["__meta_docker_container_id"],
+      target_label  = "container_id",
     },
     {
-      source_labels = ["__meta_docker_container_image"]
-      target_label  = "image"
+      source_labels = ["__meta_docker_container_image"],
+      target_label  = "image",
     },
     {
-      source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
-      target_label  = "compose_service"
+      source_labels = ["__meta_docker_container_label_com_docker_compose_service"],
+      target_label  = "compose_service",
     },
     {
-      source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
-      target_label  = "compose_project"
+      source_labels = ["__meta_docker_container_label_com_docker_compose_project"],
+      target_label  = "compose_project",
     },
     {
-      source_labels = ["__host__"]
-      target_label  = "host"
-      replacement   = "mac-local"
+      source_labels = ["__host__"],
+      target_label  = "host",
+      replacement   = "mac-local",
     },
   ]
 
   labels = {
-    job = "docker-containers"
-    env = "local"
-    os  = "macos"
+    job = "docker-containers",
+    env = "local",
+    os  = "macos",
   }
 
-  tail_from_end = true
+  tail_from_end = false
   forward_to    = [loki.process.enrich.receiver]
 }
 
@@ -51,15 +51,15 @@ loki.process "enrich" {
 
   stage.json {
     expressions = {
-      "level" = "level"
-      "msg"   = "msg"
-      "ts"    = "ts"
+      "level" = "level",
+      "msg"   = "msg",
+      "ts"    = "ts",
     }
   }
 
   stage.labels {
     values = {
-      level = ""
+      level = "",
     }
   }
 
@@ -70,7 +70,7 @@ loki.process "enrich" {
 
   stage.metrics {
     values = {
-      byte_size = ""
+      byte_size = "",
     }
     action = "add"
   }
