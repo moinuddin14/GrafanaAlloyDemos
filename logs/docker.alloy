@@ -21,6 +21,7 @@ loki.source.docker "docker_logs" {
     job = "docker-containers",
     env = "local",
     os  = "macos",
+    container = "container",
   }
 
   forward_to = [loki.relabel.docker_with_container.receiver]
@@ -34,6 +35,7 @@ loki.process "enrich" {
       "level" = "level",
       "msg"   = "msg",
       "ts"    = "ts",
+      "container" = "container",
     }
   }
 
