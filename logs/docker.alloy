@@ -23,7 +23,6 @@ loki.source.docker "docker_logs" {
     os  = "macos",
   }
 
-  # Send raw entries (with meta labels) to the relabel stage
   forward_to = [loki.relabel.docker_with_container.receiver]
 }
 
