@@ -3,16 +3,20 @@ discovery.docker "containers" {
   refresh_interval = "30s"
 }
 
+loki.relabel "docker_with_container" {
+  forward_to = [loki.process.enrich.receiver]
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+    replacement   = "$1"
+  }
+}
+
 loki.source.docker "docker_logs" {
   host    = "unix:///var/run/docker.sock"
   targets = discovery.docker.containers.targets
-
-  relabel_rules = [{
-    source_labels = ["__meta_docker_container_name"],
-    target_label  = "container",
-    regex         = "/(.*)",
-    replacement   = "$1",
-  }]
 
   labels = {
     job = "docker-containers",
@@ -20,7 +24,7 @@ loki.source.docker "docker_logs" {
     os  = "macos",
   }
 
-  forward_to = [loki.process.enrich.receiver]
+  forward_to = [loki.relabel.docker_with_container.receiver]
 }
 
 loki.process "enrich" {
