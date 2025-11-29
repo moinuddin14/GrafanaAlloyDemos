@@ -3,6 +3,16 @@ discovery.docker "containers" {
   refresh_interval = "30s"
 }
 
+loki.relabel "docker_with_container" {
+  forward_to = [loki.process.enrich.receiver]
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+
 loki.source.docker "docker_logs" {
   host    = "unix:///var/run/docker.sock"
   targets = discovery.docker.containers.targets
@@ -13,7 +23,8 @@ loki.source.docker "docker_logs" {
     os  = "macos",
   }
 
-  forward_to = [loki.process.enrich.receiver]
+  # Send raw entries (with meta labels) to the relabel stage
+  forward_to = [loki.relabel.docker_with_container.receiver]
 }
 
 loki.process "enrich" {
